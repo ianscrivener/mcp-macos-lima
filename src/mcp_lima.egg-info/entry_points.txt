@@ -1,0 +1,2 @@
+[console_scripts]
+mcp-lima = mcp_lima.server:main

@@ -1,0 +1,40 @@
+[project]
+name = "mcp-lima"
+version = "0.1.0"
+description = "FastMCP server exposing core Lima CLI operations"
+readme = "README.md"
+requires-python = ">=3.11"
+dependencies = [
+    "fastmcp>=3.0.0",
+    "pydantic>=2.7.0",
+]
+
+[project.optional-dependencies]
+dev = [
+    "pytest>=8.3.0",
+    "pytest-cov>=6.0.0",
+    "pytest-mock>=3.14.0",
+]
+
+[project.scripts]
+mcp-lima = "mcp_lima.server:main"
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+addopts = "-v --cov=. --cov-report=term-missing"
+markers = [
+    "integration: marks tests that require a real Lima installation",
+]
+
+[tool.coverage.run]
+omit = ["tests/*"]
+
+[build-system]
+requires = ["setuptools>=69.0"]
+build-backend = "setuptools.build_meta"
+
+[tool.setuptools]
+package-dir = {"" = "src"}
+
+[tool.setuptools.packages.find]
+where = ["src"]
