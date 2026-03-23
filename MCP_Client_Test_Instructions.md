@@ -9,6 +9,17 @@ Validate `mcp-macos-lima` consistently across Claude Code, GitHub Copilot Chat, 
 - MCP command: `uv run mcp-lima`
 - Reports root: `test_reports/mcp_lima/`
 
+## Python Environment Prerequisites
+
+- UV must be installed before running setup or MCP server commands.
+
+Install/check UV:
+
+```bash
+brew install uv
+uv --version
+```
+
 ## Setup
 
 ```bash
@@ -19,9 +30,21 @@ source .venv/bin/activate
 uv sync --extra dev
 ```
 
+`uv sync --extra dev` is mandatory so all required runtime and test modules are installed.
+
+## MCP Client Connection
+
+If the MCP server is not already configured in your client, add it with:
+
+- command: `uv`
+- args: `run mcp-lima`
+- working directory: repository root (`mcp-macos-lima`)
+
 ## Test Scope
 
 Phase 1 tools:
+
+- `lima_healthcheck`
 
 - `lima_create`
 - `lima_start`
@@ -37,7 +60,7 @@ Phase 1 tools:
 ## Standard Sequence (A-J)
 
 1. Tool discovery
-2. Health check
+2. Health check (`lima_healthcheck`)
 3. Start and list
 4. Info
 5. Shell command
@@ -70,6 +93,8 @@ All tool responses must be parseable JSON and should include standard fields:
 - `test_reports/mcp_lima/copilot/mcp-client-results-<date>.md`
 - `test_reports/mcp_lima/codex/mcp-client-results-<date>.md`
 - `test_reports/mcp_lima/gemini/mcp-client-results-<date>.md`
+
+Create the directory when needed, then write the report file under the matching client path.
 
 ## Required Report Sections
 

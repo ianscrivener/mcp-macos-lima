@@ -22,7 +22,14 @@ Phase 1 tools:
 - macOS host
 - `limactl` installed and available on `PATH`
 - Python 3.11+
-- UV package manager
+- UV package manager installed
+
+Install UV (if needed):
+
+```bash
+brew install uv
+uv --version
+```
 
 ## Clone And Setup
 
@@ -34,6 +41,8 @@ source .venv/bin/activate
 uv sync --extra dev
 ```
 
+`uv sync --extra dev` is required to install runtime and test dependencies from `pyproject.toml`.
+
 ## Run MCP Server
 
 ```bash
@@ -42,6 +51,12 @@ uv run mcp-lima
 ```
 
 FastMCP defaults to stdio transport, suitable for MCP clients such as Claude Code.
+
+For MCP clients, configure the server command as:
+
+```bash
+uv run mcp-lima
+```
 
 ## Test
 
