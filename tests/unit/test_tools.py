@@ -11,6 +11,7 @@ import unittest.mock as mock
 import pytest
 
 from mcp_lima.tools.lifecycle import build_advanced_args, normalize_instance
+from mcp_lima.tools.instances import normalize_memory_value
 
 
 # ---------------------------------------------------------------------------
@@ -100,6 +101,16 @@ def test_build_advanced_args_all_ignored():
     args, ignored = build_advanced_args({"foo": "bar", "baz": 1})
     assert args == []
     assert set(ignored) == {"foo", "baz"}
+
+
+def test_normalize_memory_value_gib_string():
+    assert normalize_memory_value("2GiB") == "2"
+    assert normalize_memory_value("2 gb") == "2"
+
+
+def test_normalize_memory_value_mib_string():
+    assert normalize_memory_value("1024MiB") == "1"
+    assert normalize_memory_value("1536MB") == "1.5"
 
 
 # ---------------------------------------------------------------------------
@@ -241,6 +252,12 @@ class TestLifecycleTools:
             assert result["action"] == "delete"
             assert result["instance"] == "myvm"
             assert "confirm=true" in result["message"].lower()
+            assert result["error"] is False
+            assert result["command"] == ["limactl", "delete", "myvm"]
+            assert result["exit_code"] == 0
+            assert result["stdout"] == ""
+            assert result["stderr"] == ""
+            assert result["data"] == {"preview": True, "action": "delete", "instance": "myvm"}
 
     def test_lima_delete_executes_when_confirmed(self):
         with mock.patch("subprocess.run", return_value=subprocess.CompletedProcess(
@@ -319,7 +336,10 @@ class TestInstancesTools:
     def test_lima_edit_memory(self):
         mcp = self._setup()
         _call(mcp, "lima_edit", instance="default", memory="8GiB")
-        assert "--memory" in self._mock.call_args[0][0]
+        cmd = self._mock.call_args[0][0]
+        assert "--memory" in cmd
+        memory_index = cmd.index("--memory") + 1
+        assert cmd[memory_index] == "8"
 
     def test_lima_edit_mount_writable_false_omitted(self):
         mcp = self._setup()

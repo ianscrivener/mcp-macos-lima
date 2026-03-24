@@ -16,9 +16,12 @@ class CommandResponse(BaseModel):
     ignored_extra_args: list[str] = Field(default_factory=list)
 
 
-class DeletePreview(BaseModel):
-    error: bool = False
+class HealthcheckResponse(CommandResponse):
+    status: str = "ok"
+    server: str
+
+
+class DeletePreview(CommandResponse):
     preview: bool = True
     action: str = "delete"
     instance: str
-    message: str = "Set confirm=true to execute deletion."

@@ -1,3 +1,4 @@
+import asyncio
 import shutil
 import subprocess
 
@@ -83,15 +84,10 @@ def test_cli_wrapper_nonexistent_binary():
 
 @pytest.mark.integration
 def test_lima_list_tool_real(limactl_available):
-    from fastmcp import FastMCP
-    from mcp_lima.cli_wrapper import LimaCLI
-    from mcp_lima.tools.instances import register_instance_tools
+    from mcp_lima.server import create_server
 
-    cli = LimaCLI()
-    mcp = FastMCP(name="test")
-    register_instance_tools(mcp, cli)
-    tool = next(t for t in mcp._tool_manager._tools.values() if t.name == "lima_list")
-    result = tool.fn()
+    server = create_server()
+    result = asyncio.run(server.call_tool("lima_list", {})).structured_content
     assert result["error"] is False
 
 
@@ -101,29 +97,23 @@ def test_lima_list_tool_real(limactl_available):
 
 @pytest.mark.integration
 def test_lima_shell_uname(default_running):
-    from fastmcp import FastMCP
-    from mcp_lima.cli_wrapper import LimaCLI
-    from mcp_lima.tools.access import register_access_tools
+    from mcp_lima.server import create_server
 
-    cli = LimaCLI()
-    mcp = FastMCP(name="test")
-    register_access_tools(mcp, cli)
-    tool = next(t for t in mcp._tool_manager._tools.values() if t.name == "lima_shell")
-    result = tool.fn(command="uname -s", instance="default")
+    server = create_server()
+    result = asyncio.run(
+        server.call_tool("lima_shell", {"command": "uname -s", "instance": "default"})
+    ).structured_content
     assert result["error"] is False
     assert "Linux" in result["stdout"]
 
 
 @pytest.mark.integration
 def test_lima_shell_error_exit_code(default_running):
-    from fastmcp import FastMCP
-    from mcp_lima.cli_wrapper import LimaCLI
-    from mcp_lima.tools.access import register_access_tools
+    from mcp_lima.server import create_server
 
-    cli = LimaCLI()
-    mcp = FastMCP(name="test")
-    register_access_tools(mcp, cli)
-    tool = next(t for t in mcp._tool_manager._tools.values() if t.name == "lima_shell")
-    result = tool.fn(command="exit 42", instance="default")
+    server = create_server()
+    result = asyncio.run(
+        server.call_tool("lima_shell", {"command": "exit 42", "instance": "default"})
+    ).structured_content
     assert result["error"] is True
     assert result["exit_code"] == 42

@@ -29,4 +29,12 @@ def test_all_expected_tools_registered():
 def test_healthcheck_returns_ok():
     server = create_server()
     result = asyncio.run(server.call_tool("lima_healthcheck", {}))
-    assert result.structured_content == {"status": "ok", "server": "mcp-lima"}
+    payload = result.structured_content
+    assert payload["status"] == "ok"
+    assert payload["server"] == "mcp-lima"
+    assert payload["error"] is False
+    assert payload["command"] == ["internal", "lima_healthcheck"]
+    assert payload["exit_code"] == 0
+    assert payload["stdout"] == ""
+    assert payload["stderr"] == ""
+    assert payload["data"] == {"status": "ok", "server": "mcp-lima"}

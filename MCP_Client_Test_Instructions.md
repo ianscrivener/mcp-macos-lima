@@ -70,6 +70,8 @@ Phase 1 tools:
 9. Invalid input/error contract
 10. Timeout handling
 
+During step 2 and step 8, explicitly verify response-envelope compliance.
+
 ## Safety Rules
 
 - Do not delete `default` unless explicitly approved.
@@ -78,7 +80,7 @@ Phase 1 tools:
 
 ## Response Contract
 
-All tool responses must be parseable JSON and should include standard fields:
+All tool responses must be parseable JSON and must include standard fields:
 
 - `error`
 - `command`
@@ -86,6 +88,29 @@ All tool responses must be parseable JSON and should include standard fields:
 - `stdout`
 - `stderr`
 - `data` (when present)
+
+Contract checks are mandatory for:
+
+- `lima_healthcheck`
+- `lima_delete(confirm=false)` preview response
+
+Both must include the standard fields listed above.
+
+## Local Test Commands
+
+Run tests after MCP validation and before finalizing reports:
+
+```bash
+uv run python -m pytest -m "not integration"
+uv run python -m pytest
+```
+
+Use `python -m pytest` to avoid PATH/script resolution issues in mixed shell environments.
+
+## Additional Validation Checks
+
+- Verify `lima_edit(instance="default", memory="2GiB")` does not fail due to raw unit suffix handling.
+- Record the observed command/result in the report if memory normalization behavior changes.
 
 ## Per-Client Report Paths
 

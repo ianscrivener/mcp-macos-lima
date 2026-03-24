@@ -1,11 +1,30 @@
 from __future__ import annotations
 
+import re
 from typing import Any
 
 from fastmcp import FastMCP
 
 from ..cli_wrapper import LimaCLI
 from .lifecycle import normalize_instance
+
+
+def normalize_memory_value(memory: str | int | float) -> str:
+    if isinstance(memory, (int, float)):
+        return str(memory)
+
+    text = str(memory).strip()
+
+    gib_match = re.fullmatch(r"(?i)(\d+(?:\.\d+)?)\s*(gib|gb|g)?", text)
+    if gib_match:
+        return gib_match.group(1)
+
+    mib_match = re.fullmatch(r"(?i)(\d+(?:\.\d+)?)\s*(mib|mb|m)", text)
+    if mib_match:
+        gib_value = float(mib_match.group(1)) / 1024
+        return f"{gib_value:.3f}".rstrip("0").rstrip(".")
+
+    return text
 
 
 def register_instance_tools(mcp: FastMCP, cli: LimaCLI) -> None:
@@ -24,7 +43,7 @@ def register_instance_tools(mcp: FastMCP, cli: LimaCLI) -> None:
     def lima_edit(
         instance: str = "default",
         cpus: int | None = None,
-        memory: str | None = None,
+        memory: str | int | float | None = None,
         disk: str | int | None = None,
         vm_type: str | None = None,
         mount_type: str | None = None,
@@ -39,7 +58,7 @@ def register_instance_tools(mcp: FastMCP, cli: LimaCLI) -> None:
         if cpus is not None:
             args.extend(["--cpus", str(cpus)])
         if memory is not None:
-            args.extend(["--memory", str(memory)])
+            args.extend(["--memory", normalize_memory_value(memory)])
         if disk is not None:
             args.extend(["--disk", str(disk)])
         if vm_type is not None:

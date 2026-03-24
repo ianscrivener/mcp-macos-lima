@@ -100,5 +100,10 @@ def register_lifecycle_tools(mcp: FastMCP, cli: LimaCLI) -> None:
     ) -> dict[str, Any]:
         name = normalize_instance(instance)
         if not confirm:
-            return DeletePreview(instance=name).model_dump()
+            return DeletePreview(
+                command=[cli.binary, "delete", name],
+                instance=name,
+                data={"preview": True, "action": "delete", "instance": name},
+                message="Set confirm=true to execute deletion.",
+            ).model_dump()
         return cli.run(["delete", name], timeout_seconds=timeout_seconds)
