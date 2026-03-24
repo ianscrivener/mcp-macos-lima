@@ -11,7 +11,7 @@ Requires-Dist: pytest>=8.3.0; extra == "dev"
 Requires-Dist: pytest-cov>=6.0.0; extra == "dev"
 Requires-Dist: pytest-mock>=3.14.0; extra == "dev"
 
-# mcp-lima
+# mcp-macos-lima
 
 FastMCP server for core Lima operations on macOS.
 
@@ -35,27 +35,43 @@ Phase 1 tools:
 - macOS host
 - `limactl` installed and available on `PATH`
 - Python 3.11+
-- UV package manager
+- UV package manager installed
 
-## Setup
+Install UV (if needed):
 
 ```bash
-cd mcp/lima-macos-mcp
+brew install uv
+uv --version
+```
+
+## Clone And Setup
+
+```bash
+git clone git@github.com:ianscrivener/mcp-macos-lima.git
+cd mcp-macos-lima
 uv venv
 source .venv/bin/activate
 uv sync --extra dev
 ```
 
-## Run
+`uv sync --extra dev` is required to install runtime and test dependencies from `pyproject.toml`.
+
+## Run MCP Server
 
 ```bash
 source .venv/bin/activate
 uv run mcp-lima
 ```
 
-FastMCP defaults to stdio transport, which is suitable for MCP clients like Claude Desktop and Claude Code.
+FastMCP defaults to stdio transport, suitable for MCP clients such as Claude Code.
 
-## Tests
+For MCP clients, configure the server command as:
+
+```bash
+uv run mcp-lima
+```
+
+## Test
 
 ```bash
 source .venv/bin/activate
@@ -63,8 +79,32 @@ uv run pytest -m "not integration" --cov=. --cov-report=term-missing
 uv run pytest --cov=. --cov-report=term-missing
 ```
 
+Client reports should be stored under:
+
+- `test_reports/mcp_lima/claude_code/`
+- `test_reports/mcp_lima/copilot/`
+- `test_reports/mcp_lima/codex/`
+- `test_reports/mcp_lima/gemini/`
+
+## GitHub Workflow
+
+Pull latest:
+
+```bash
+git checkout main
+git pull origin main
+```
+
+Push changes:
+
+```bash
+git add -A
+git commit -m "<summary>"
+git push origin main
+```
+
 ## Notes
 
-- Tool responses are always parseable JSON objects.
+- Tool responses are parseable JSON objects.
 - Non-zero CLI exits are normalized into `{ "error": true, ... }` responses.
 - `lima_delete` supports preview-first behavior when `confirm` is false.
